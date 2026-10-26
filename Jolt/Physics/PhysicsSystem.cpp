@@ -1768,8 +1768,12 @@ inline static PhysicsUpdateContext::Step::CCDBody *sGetCCDBody(const Body &inBod
 	if (active_index == Body::cInactiveIndex)
 		return nullptr;
 
+	// A body activated after the mapping was made (a sleeping one hit by another CCD body, activated in batches in
+	// JobResolveCCDContacts) has no CCD body: reading the mapping for it went past its end
+	if (active_index >= inStep->mNumActiveBodyToCCDBody)
+		return nullptr;
+
 	// Check if the active body has a corresponding CCD body
-	JPH_ASSERT(active_index < inStep->mNumActiveBodyToCCDBody); // Ensure that the body has a mapping to CCD body
 	int ccd_index = inStep->mActiveBodyToCCDBody[active_index];
 	if (ccd_index < 0)
 		return nullptr;
